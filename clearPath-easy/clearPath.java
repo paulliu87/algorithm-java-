@@ -2,8 +2,12 @@
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 
+//param: give a int[][] matrix and int target, find the target inside the matrix and change all the numbers on the same row and colum to zero
+//param: void change inplace
+//unsorted time complexity O(m * n) + O(m+n*(m*n)) space complexity O(m * n)
 class solution {
     // random  a m * n matrix
     private static int[][] randMatrix(int m, int n) {
@@ -36,42 +40,53 @@ class solution {
     }
 
     private static void zeroTargetRowCol(int[][] matrix, int target) {
-        ArrayList<int[]> coordinates = findTarget(matrix, target);
+        HashSet[] coordinates = findTarget(matrix, target);
         zeroRowCol(matrix, coordinates);
     }
 
-    private static ArrayList<int[]> findTarget(int[][] matrix, int target) {
-        ArrayList<int[]> coordinates = new ArrayList<>();
-        for(int i = 0; i < matrix.length; i++) {
+    private static HashSet[] findTarget(int[][] matrix, int target) {
+        HashSet<Integer> rows = new HashSet<Integer>();
+        HashSet<Integer> cols = new HashSet<Integer>();
+        for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[0].length; j++) {
-                int[] coordinate = new int[2];
                 if (matrix[i][j] == target) {
-                    System.out.println("i,j = " + i + "," + j + "target = " + target);
-                    coordinate[0] = i;
-                    coordinate[1] = j;
-                    coordinates.add(coordinate);
+                    rows.add(i);
+                    cols.add(j);
                 }
             }
         }
+        
+        HashSet[] coordinates = {rows, cols};
         return coordinates;
     }
 
-    private static void zeroRowCol(int[][] matrix, ArrayList<int[]> coordinates) {
-        for (int n = 0; n < coordinates.size(); n++) {
-            int[] coordinate = coordinates.get(n);
-            for(int i = 0; i < matrix.length; i++) {
-                matrix[i][coordinate[1]] = 0;
-            }
-            for (int i = 0; i < matrix[0].length; i++) {
-                matrix[coordinate[0]][i] = 0;
-            }
+    private static void zeroCol(int[][] matrix, int colIndex) {
+        for (int rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
+            matrix[rowIndex][colIndex] = 0;
+        }
+    }
+
+    private static void zeroRow(int[][] matrix, int rowIndex) {
+        for (int colIndex = 0; colIndex < matrix[0].length; colIndex++) {
+            matrix[rowIndex][colIndex] = 0;
+        }
+    }
+
+    private static void zeroRowCol(int[][] matrix, HashSet[] coordinates) {
+        HashSet<Integer> rows = coordinates[0];
+        HashSet<Integer> cols = coordinates[1];
+        for (Integer row : rows) {
+            zeroRow(matrix, row);
+        }
+        for (Integer col : cols) {
+            zeroCol(matrix, col);
         }
         return;
     }
 
     public static void main(String[] args) {
         int[][] matrix = randMatrix(20,20);
-        int target = matrix[11][6];
+        int target = matrix[11][13];
 
         printMatrix(matrix);
         printSpace();
